@@ -17,8 +17,8 @@
       /* Optional: Makes the sample page fill the window. */
       html,
       body {
-        height: 100%;
-        margin: 0;
+        height: 80%;
+        margin: 5% 10%;
         padding: 0;
       }
     </style>
@@ -28,8 +28,10 @@
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
           center: { lat: 35.0305, lng: 135.7846 },
-          zoom: 20,
+          zoom: 18,
+          mapTypeId: "satellite",
         });
+        map.setTilt(0);
       }
     </script>
   </head>
