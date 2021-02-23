@@ -4,12 +4,11 @@ var oMarkers = [];
 // let map;
 // 中心を変えたいならここをいじる
 function initMap() {
-    var mapcenter = { lat: 35.0305, lng: 135.7846 };
-
+    // var mapcenter = { lat: 35.0305, lng: 135.7846 };//農学研究科総合館
+    var mapcenter = { lat: 34.73554, lng: 135.840465 };//木津農場
     map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 15,
         center: mapcenter,
-        zoom: 18,
+        zoom: 20,
         mapTypeId: "satellite",
     });
 
@@ -95,8 +94,8 @@ function Gstaticmap() {
             'maptype=satellite' + '&';
 
         for (var i = 0; i < oMarkers.length; i++) {
-
-            urL += 'markers=color:yellow%7Clabel:' + i + '|' + oMarkers[i].getPosition().lat() + ',' + oMarkers[i].getPosition().lng() + '&';
+            var i_ = i + 1;
+            urL += 'markers=color:yellow%7Clabel:' + i_ + '|' + oMarkers[i].getPosition().lat() + ',' + oMarkers[i].getPosition().lng() + '&';
         };
         //urL += 'sensor=false';
         urL += '&key=AIzaSyAS43w4wzGlY2nTWfnfwTp8rJKNsOuz5qc';
@@ -153,24 +152,42 @@ function Gstaticmap() {
 function cutsimG() {
     //simファイル作成 google用
     var datasima = "", k, kk;
-    datasima += "G00,03,," + "\n";
-    datasima += "Z00,," + "\n";
-    datasima += "Z01,0," + "\n";
-    datasima += "A00," + "\n";
+    datasima += "marker," + "latitude," + "longnitude," + "\n";
     for (k = 0; k < oMarkers.length; k++) {
         kk = k + 1
-        datasima += "A01," + kk + "," + k + "," + xG[k] + "," + yG[k] + ",," + "\n";
+        datasima += kk + "," + xG[k] + "," + yG[k] + ",," + "\n";
     };
     if (!kk) { kk = 0 };
-    kk += 1
-    datasima += "A01," + kk + ",DL," + img_min_X + "," + img_min_Y + ",," + "\n";
-    kk += 1
-    datasima += "A01," + kk + ",UR," + img_max_X + "," + img_max_Y + ",," + "\n";
-    datasima += "A99,";
+    // kk += 1
+    // datasima += "A01," + kk + ",DL," + img_min_X + "," + img_min_Y + ",," + "\n";
+    // kk += 1
+    // datasima += "A01," + kk + ",UR," + img_max_X + "," + img_max_Y + ",," + "\n";
+    // datasima += "A99,";
     //Blobにテキストを追加する
     var blob = new Blob([datasima]);
-    saveAs(blob, "描画したマーカーの座標値.sim")
+    saveAs(blob, "描画したマーカーの座標値.csv")
 };
+// function cutsimG() {
+//     //simファイル作成 google用
+//     var datasima = "", k, kk;
+//     datasima += "G00,03,," + "\n";
+//     datasima += "Z00,," + "\n";
+//     datasima += "Z01,0," + "\n";
+//     datasima += "A00," + "\n";
+//     for (k = 0; k < oMarkers.length; k++) {
+//         kk = k + 1
+//         datasima += "A01," + kk + "," + k + "," + xG[k] + "," + yG[k] + ",," + "\n";
+//     };
+//     if (!kk) { kk = 0 };
+//     kk += 1
+//     datasima += "A01," + kk + ",DL," + img_min_X + "," + img_min_Y + ",," + "\n";
+//     kk += 1
+//     datasima += "A01," + kk + ",UR," + img_max_X + "," + img_max_Y + ",," + "\n";
+//     datasima += "A99,";
+//     //Blobにテキストを追加する
+//     var blob = new Blob([datasima]);
+//     saveAs(blob, "描画したマーカーの座標値.csv")
+// };
 
 function showfitMap(Markers) {
     var ll1;

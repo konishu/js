@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <title>Google Maps My List</title>
+    <meta charset="utf-8">
+    <style>
+        #header {
+            font-family: Meriyo UI;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+            background-color: darkblue;
+            padding: 3px;
+            width: 1750px;
+            border: 1px outset gray;
+        }
+
+        #target {
+            border: 1px outset gray;
+            width: 1400px;
+            height: 900px;
+        }
+
+        #sidebar {
+            border: 1px solid #666;
+            padding: 6px;
+            background-color: white;
+            font-family: Meriyo UI;
+            font-size: 12px;
+            overflow: auto;
+            width: 337px;
+            height: 888px;
+        }
+
+        #tag {
+            font-size: 16px;
+            height: 30px;
+        }
+
+        #getTag {
+            font-size: 16px;
+            width: 200px;
+            color: #fff;
+            background: green;
+            border-radius: 5px;
+            height: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header">Google Maps - 日本いろいろMY LIST</div>
+    <br>
+    <div>
+        <select id="tag">
+            <option value="0">0.ALL</option>
+            <option value="1">1.世界遺産</option>
+            <option value="2">2.日本三大:七不思議</option>
+            <option value="3">3.滝</option>
+            <option value="4">4.城</option>
+            <option value="5">5.山</option>
+            <option value="6">6.温泉</option>
+            <option value="7">7.xxx</option>
+        </select>
+        <button id="getTag">タグの絞込み</button>
+    </div>
+
+    <table>
+        <tr>
+            <td>
+                <div id="target"></div>
+            </td>
+            <td>
+                <div id="sidebar"></div>
+            </td>
+        </tr>
+    </table>
+
+    <script src="https://maps.googleapis.com/maps/api/js?language=ja&region=JP&key=AIzaSyAS43w4wzGlY2nTWfnfwTp8rJKNsOuz5qc&callback=initMap" async
+        defer></script>
+
+    <script>
+        let marker = [];
+        let infoWindow = [];
+        let markerData = [];
+
+        // 地図初期表示
+        function initMap() {
+
+            const target = document.getElementById('target');
+            const centerp = { lat: 37.67229496806523, lng: 137.88838989062504 };
+
+            map = new google.maps.Map(target, {
+                center: centerp,
+                zoom: 5,
+            });
+
+            // Function:地図データの取得
+            getMapdata();
+
+        }
+        // Function:地図データの取得
+        function getMapdata() {
+
+            //APIにてデータを取得して、位置とマーカーをセットするfunctionを呼び出す
+            const request = new XMLHttpRequest();
+            const bookid = '16vcUrSywJg1EhX1_EYTeMP9-wxba6LqtZb7MgPpy3oU';
+            const sheetname = 'test1';
+            const googleapi = 'AIzaSyAS43w4wzGlY2nTWfnfwTp8rJKNsOuz5qc';
+            const url = 'https://sheets.googleapis.com/v4/spreadsheets/' + bookid + '/values/' + sheetname + '?key=' + googleapi;
+            // https://sheets.googleapis.com/v4/spreadsheets/16vcUrSywJg1EhX1_EYTeMP9-wxba6LqtZb7MgPpy3oU?includeGridData=true
+            // const url = 'https://sheets.googleapis.com/v4/spreadsheets/' + bookid + '/values/' + sheetname + '?key=' + googleapi;
+
+            request.open('GET', url, true);
+            request.responseType = 'json';
+
+            request.onload = function () {
+                const data = this.response;     // 取得できた値を格納
+                markerData = parseData(data);   // Function:データ変換
+                setData(markerData);            // Function:位置とマーカーをセット
+            };
+
+            request.send();
+
+        }
+
+        // Function:データ変換
+        function parseData(data) {
+            const keys = data.values[0];
+            const parsemarkerData = [];
+            data.values.forEach(function (value, i) {
+                if (i > 0) {
+                    const hash = {};
+                    value.forEach(function (d, j) {
+                        hash[keys[j]] = d;
+                    });
+                    parsemarkerData.push(hash);
+                }
+            });
+            return parsemarkerData;
+        }
+
+        // Function:位置とマーカーをセット
+        function setData(markerData) {
+
+            // 初期化
+            let sidebar_html = "";
+            marker = [];
+
+            for (let i = 0; i < markerData.length; i++) {
+
+                // マーカー位置のセット
+                const markerLatLng = new google.maps.LatLng({
+                    lat: Number(markerData[i]['lat']),
+                    lng: Number(markerData[i]['lng'])
+                });
+
+                // マーカーアイコンのセット
+                const tagno = markerData[i]['tag'].charAt(0)
+                switch (tagno) {
+                    case '1':
+                        iconcolor = './icon_tag/tag1.png'
+                        break;
+                    case '2':
+                        iconcolor = './icon_tag/tag2.png'
+                        break;
+                    case '3':
+                        iconcolor = './icon_tag/tag3.png'
+                        break;
+                    case '4':
+                        iconcolor = './icon_tag/tag4.png'
+                        break;
+                    case '5':
+                        iconcolor = './icon_tag/tag5.png'
+                        break;
+                    case '6':
+                        iconcolor = './icon_tag/tag6.png'
+                        break;
+                    case '7':
+                        iconcolor = './icon_tag/tag7.png'
+                        break;
+                    default:
+                        iconcolor = './icon_tag/tag7.png'
+                }
+                const icon = new google.maps.MarkerImage(iconcolor);
+
+                // マーカーのセット
+                marker[i] = new google.maps.Marker({
+                    position: markerLatLng,          // マーカーを立てる位置を指定
+                    map: map,                        // マーカーを立てる地図を指定
+                    icon: icon                       // アイコン指定
+                });
+
+                // 吹き出しへのデータセット
+                const done = markerData[i]['done'];
+                const tag = markerData[i]['tag'];
+                const name = markerData[i]['name'];
+                const img = markerData[i]['img'];
+
+                let setHtml;
+                if (done === 'y') {
+                    setHtml = tag + '<br><br>' + name + '<br><img src=' + img + ' width="200" height="150"><br>';
+                } else {
+                    setHtml = tag + '<br><br>' + name + '<br><br>';
+                }
+
+                // 吹き出しのセット
+                infoWindow[i] = new google.maps.InfoWindow({
+                    content: setHtml
+                });
+
+                // サイドバーのデータセット
+                sidebar_html += '<a href="javascript:myclick(' + i + ')">' + tag + ' : ' + name + '(' + done + ')' + '</a><br>';
+
+                // Function:マーカーにクリックイベントを追加
+                markerEvent(i);
+            }
+
+            // サイドバーへの書き出し
+            document.getElementById("sidebar").innerHTML = 'Googleスプレッドシートデータ<br><br>' + sidebar_html;
+
+        }
+
+        // Function:マーカーにクリックイベントを追加
+        function markerEvent(i) {
+            marker[i].addListener('click', function () {
+                myclick(i);     // Function: 吹き出しのオープン・クローズ
+            });
+        }
+
+        // Function: 吹き出しのオープン・クローズ
+        let openWindow;
+        function myclick(i) {
+            if (openWindow) {
+                openWindow.close();
+            }
+            infoWindow[i].open(map, marker[i]);
+            openWindow = infoWindow[i];
+        }
+
+        // 絞り込みボタンが押下されたとき
+        const tagBtn = document.getElementById('getTag');
+        tagBtn.addEventListener('click', function () {
+            const tag = document.getElementById('tag').value;
+
+            const tagmarkerData = [];
+            let j = 0;
+            for (let i = 0; i < markerData.length; i++) {
+                if (tag === markerData[i]['tag'].charAt(0)) {
+                    tagmarkerData[j] = markerData[i];
+                    j++;
+                }
+                if (tag === '0') {
+                    tagmarkerData[i] = markerData[i];
+                }
+            }
+
+            // 地図の初期表示
+            const target = document.getElementById('target');
+            const centerp = { lat: 37.67229496806523, lng: 137.88838989062504 };
+
+            map = new google.maps.Map(target, {
+                center: centerp,
+                zoom: 5,
+            });
+
+            // Function:位置とマーカーをセット（タグを絞り込みしたデータ）
+            setData(tagmarkerData);
+
+        });
+
+    </script>
+
+</body>
+
+</html>

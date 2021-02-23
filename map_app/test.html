@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Simple Map Sample</title>
+<meta charset="utf-8">
+<style>
+#gmap {
+  height: 400px;
+  width: 600px;
+}
+</style>
+</head>
+<body>
+ 
+<div id="gmap"></div>
+ {{ log(e.latLng.lng()) }}
+ 
+<script>
+  var map;
+  function initMap() {
+    var target = document.getElementById('gmap');
+    var empire = { lat: 40.748441, lng: -73.985664 };
+    map = new google.maps.Map(target, {
+      center: empire,
+      zoom: 14
+    });
+
+    //マップのイベント
+    map.addListener('click', function(e){
+      console.log(e.latLng.lat());
+      console.log(e.latLng.lng());
+      console.log(e.latLng.toString());
+    });
+    google.maps.event.addListener(map, 'click', function (e) {
+      var marker = new google.maps.Marker({
+        position: e.latLng,  //イベントの発生した緯度・経度（位置）
+        map: this,  //this は map を意味します
+        animation: google.maps.Animation.DROP
+      });
+
+      var infoWindow = new google.maps.InfoWindow({
+        content: e.latLng.toString() //イベントの発生した位置を toString() で文字列に変換
+      });
+
+      //マーカーのイベント
+      google.maps.event.addListener(marker, 'click', function () {
+        infoWindow.open(map, marker); //marker の位置に情報ウィンドウを表示
+      });
+
+      //情報ウィンドウののイベント
+      google.maps.event.addListener(infoWindow, 'closeclick', function () {
+        marker.setMap(null);  //マーカーを削除
+      });
+    });
+  }
+// 地図をクリックすると、クリックされた地点の緯度と経度をコンソールに出力する例です。
+// クリックされた地点は、イベント（e）の緯度・経度（latLng）のメソッド（lat()、lng()、toString()）で取得しています。
+// https://www.webdesignleaves.com/pr/plugins/googlemap_01.html
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?language=ja&region=JP&key=AIzaSyAS43w4wzGlY2nTWfnfwTp8rJKNsOuz5qc&callback=initMap" async defer></script><!-- API_KEYの部分は取得した APIキーで置き換えます -->  
+</body>
+</html>

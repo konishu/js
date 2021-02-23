@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<div class="alert alert-primary" role="alert">
+    <h3>snsアプリ</h3>
+</div>
+{% endblock header %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div class="container">
+    {% for item in object_list %}
+    <div class="alert alert-success" role="alert">
+        <p>タイトル:<a href="{%  url 'detail' item.pk %}">{{ item.title }}</a></p>
+        <p>投稿者:{{ item.author }}</p>
+        <p><img src="{{ item.snsimage.url }}" width="300"></p>
+        <button type="button" class="btn btn-primary btn-sm"><a >いいね{{item.good }}</a></button>
+        <button type="button" class="btn btn-primary btn-sm">既読人数{{ item.read }}</button>
+    </div>
+    {% endfor %}
+    <a href="{% url 'logout' %}">logout</a>
+</div>
+{% else %}
+please login
+{% endif %}
+{% endblock content %}
